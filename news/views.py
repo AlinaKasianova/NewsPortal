@@ -1,27 +1,75 @@
+from django.shortcuts import render
+from datetime import datetime
 
-
-from django.views.generic import ListView, DetailView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post
-
+from .filters import PostFilter
+from .forms import PostForm
 
 
 class NewsList(ListView):
-    # Указываем модель, объекты которой мы будем выводить
     model = Post
-    # Поле, которое будет использоваться для сортировки объектов
-    ordering = '-date_at'
-    # Указываем имя шаблона, в котором будут все инструкции о том,
-    # как именно пользователю должны быть показаны наши объекты
+    ordering = '-date_in'
     template_name = 'news.html'
-    # Это имя списка, в котором будут лежать все объекты.
-    # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
     context_object_name = 'news'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filterset'] = self.filterset
+        return context
 
 
 class NewDetail(DetailView):
-    # Модель всё та же, но мы хотим получать информацию по отдельному товару
     model = Post
-    # Используем другой шаблон — product.html
-    template_name = 'new_list.html'
-    # Название объекта, в котором будет выбранный пользователем продукт
+    template_name = 'new.html'
     context_object_name = 'new'
+
+
+class NewSearch(ListView):
+    model = Post
+    ordening = 'date_in'
+    template_name = 'new_search.html'
+    context_object_name = "new_search"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filterset'] = self.filterset
+        return context
+
+class NewCreate(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'new_edit.html'
+    success_url = reverse_lazy('news_articles')
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        if self.request.path == reverse('news_create'):
+            post.post_type = 'NW'
+        post.save()
+        return super().form_valid(form)
+
+
+
+class NewUpdate(UpdateView):
+    form_class = PostForm
+    model = Post
+    template_name = 'new_edit.html'
+
+
+class NewDelete(DeleteView):
+    model = Post
+    template_name = 'new_delete.html'
+    success_url = reverse_lazy('new_list')

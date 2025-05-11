@@ -30,7 +30,7 @@ class Post(models.Model):
 
     author = models.ForeignKey(Author, on_delete= models.CASCADE)
     post_type = models.CharField(choices=POST_TYPES, max_length=3, default=news)
-    date_at = models.DateTimeField(auto_now_add=True)
+    date_in = models.DateTimeField(auto_now_add=True)
     category = models.ManyToManyField(Category, through='PostCategory')
     title = models.CharField(max_length=100)
     text = models.TextField()
@@ -64,7 +64,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     rating = models.IntegerField(default=0)
-    date_at = models.DateTimeField(auto_now_add=True)
+    date_in = models.DateTimeField(auto_now_add=True)
 
     def like(self):
         """ Увеличивает рейтинг комментария на 1. """

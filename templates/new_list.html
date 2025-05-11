@@ -1,5 +1,4 @@
 {% extends 'flatpages/default.html' %}
-
 {% load custom_filters %}
 
 {% block title %}
@@ -7,7 +6,23 @@
 {% endblock title %}
 
 {% block content %}
-<h1>{{ new.title|censor }}</h1>
-<p>Дата публикации: {{ new.date_at|date:"d.m.Y" }}</p>
-<p>{{ new.text|censor }}</p>
+<h1>Публикация № {{new.pk }}</h1>
+<h3>{{ time_now|date:' d M Y' }}</h3>
+   <hr>
+       <table>
+           <tr>
+               <td>Название</td>
+               <td>Текст</td>
+               <td>Дата публикации</td>
+
+           </tr>
+
+           <tr>
+               <td>{{ new.title|censor }}</td>
+               <td>{{ new.text|censor }}</td>
+               <td>{{ new.date_in|date:'d M Y' }}</td>
+
+
+           </tr>
+       </table>
 {% endblock content %}
